@@ -1,8 +1,8 @@
 from fastapi import FastAPI
-from sqlmodel import SQLModel, create_engine, Field  # pylint: disable=import-error
+from sqlmodel import SQLModel, create_engine, Field, Session  # pylint: disable=import-error
 from typing import Optional
 
-class manutencao(SQLModel, table=True):
+class Manutencao(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     placa: str 
     marca: str
@@ -33,3 +33,11 @@ def on_startup():
 def root():
     return {"message": "ok"}
 
+
+@app.post("/manutencoes")
+def cria_registro(manutencao: Manutencao):
+    with Session(engine) as session:
+        session.add(manutencao)
+        session.commit()
+        session.refresh(manutencao)
+        return manutencao
